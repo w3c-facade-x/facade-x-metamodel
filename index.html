@@ -336,9 +336,71 @@
     </pre>
   </section>
 
+  
+
+  <section>
+    <h2>Root Container</h2>
+    <p>
+      For each data source, there exists one and only one Root container.
+      The Root container cannot be assigned to a slot.
+      Containers that are not root must be assigned to a slot.
+      To identify the root container we introduce the unary predicate <code>Root</code> as a specialisation of Container
+      and the binary predicate <code>hasRoot</code> that connects a data source to its root container.
+    </p>
+
+    <p>
+      <strong>Predicate Definition</strong>
+      For each data source there is a distinguished top-level container, the root.
+      The root is the entry point of the container hierarchy and cannot be nested in any slot.
+      All other containers must be reachable from it.
+    </p>
+
+    <p>Every data source must have at least one root container.</p>
+    <pre>
+\forall ds . \exists r . \mathrm{DataSource}(ds) \Rightarrow  \mathrm{hasRoot}(ds, r) 
+    </pre>
+
+    <p>The first argument of hasRoot is a data source and the second is a root.</p>
+    <pre>
+\forall ds, r . \mathrm{hasRoot}(ds, r) \Rightarrow \mathrm{DataSource}(ds) \wedge \mathrm{Root}(r) 
+    </pre>
+
+    <p>Every root container is the root of some data source.</p>
+    <pre>
+\forall r . \exists ds . \mathrm{Root}(r) \Rightarrow  \mathrm{hasRoot}(ds, r) 
+    </pre>
+
+    <p>The root container of a data source is included in that data source.</p>
+    <pre>
+\forall ds, r . \mathrm{hasRoot}(ds, r) \Rightarrow \mathrm{includesContainer}(ds, r) 
+    </pre>
+
+    <p>Every root is also a container.</p>
+    <pre>
+\forall x . \mathrm{Root}(x) \Rightarrow \mathrm{Container}(x) 
+    </pre>
+
+    <p>A root container cannot be nested inside any slot.</p>
+    <pre>
+\forall r, s . \mathrm{Root}(r) \Rightarrow \neg \mathrm{hasContainer}(s, r) 
+    </pre>
+
+    <p>Each data source cannot have more than one root container.</p>
+    <pre>
+\forall ds, r_1, r_2 . \mathrm{hasRoot}(ds, r_1) \wedge \mathrm{hasRoot}(ds, r_2) \Rightarrow r_1 = r_2 
+    </pre>
+
+    <p>Every non-root container must be contained in some slot.</p>
+    <pre>
+\forall c . \exists s . \mathrm{Container}(c) \wedge \neg \mathrm{Root}(c) \Rightarrow \mathrm{hasContainer}(s, c) 
+    </pre>
+  </section>
+
   <section>
     <h2>Disjointness</h2>
     The unary predicates Container, Slot, Value, and Type are pairwise disjoint.
+    The unary predicates DataSource and Resource are disjoint from Container, Slot, Value, and Type.
+    The unary predicate Root is disjoint from Type, Slot, Value, DataSource, and Resource.
 
     <p>Nothing can be both a container and a slot.</p>
     <pre>
@@ -399,63 +461,70 @@
     <pre>
 \forall x . \mathrm{Type}(x) \Rightarrow \neg \mathrm{Value}(x) 
     </pre>
-  </section>
 
-  <section>
-    <h2>Root Container</h2>
-    <p>
-      For each data source, there exists one and only one Root container.
-      The Root container cannot be assigned to a slot.
-      Containers that are not root must be assigned to a slot.
-      To identify the root container we introduce the unary predicate <code>Root</code> as a specialisation of Container
-      and the binary predicate <code>hasRoot</code> that connects a data source to its root container.
-    </p>
-
-    <p>
-      <strong>Predicate Definition</strong>
-      For each data source there is a distinguished top-level container, the root.
-      The root is the entry point of the container hierarchy and cannot be nested in any slot.
-      All other containers must be reachable from it.
-    </p>
-
-    <p>Every data source must have at least one root container.</p>
+    <p>Nothing can be both a data source and a container.</p>
     <pre>
-\forall ds . \exists r . \mathrm{DataSource}(ds) \Rightarrow  \mathrm{hasRoot}(ds, r) 
+\forall x . \mathrm{DataSource}(x) \Rightarrow \neg \mathrm{Container}(x) 
     </pre>
 
-    <p>The first argument of hasRoot is a data source and the second is a root.</p>
+    <p>Nothing can be both a data source and a slot.</p>
     <pre>
-\forall ds, r . \mathrm{hasRoot}(ds, r) \Rightarrow \mathrm{DataSource}(ds) \wedge \mathrm{Root}(r) 
+\forall x . \mathrm{DataSource}(x) \Rightarrow \neg \mathrm{Slot}(x) 
     </pre>
 
-    <p>Every root container is the root of some data source.</p>
+    <p>Nothing can be both a data source and a value.</p>
     <pre>
-\forall r . \exists ds . \mathrm{Root}(r) \Rightarrow  \mathrm{hasRoot}(ds, r) 
+\forall x . \mathrm{DataSource}(x) \Rightarrow \neg \mathrm{Value}(x) 
     </pre>
 
-    <p>The root container of a data source is included in that data source.</p>
+    <p>Nothing can be both a data source and a type.</p>
     <pre>
-\forall ds, r . \mathrm{hasRoot}(ds, r) \Rightarrow \mathrm{includesContainer}(ds, r) 
+\forall x . \mathrm{DataSource}(x) \Rightarrow \neg \mathrm{Type}(x) 
     </pre>
 
-    <p>Every root is also a container.</p>
+    <p>Nothing can be both a resource and a container.</p>
     <pre>
-\forall x . \mathrm{Root}(x) \Rightarrow \mathrm{Container}(x) 
+\forall x . \mathrm{Resource}(x) \Rightarrow \neg \mathrm{Container}(x) 
     </pre>
 
-    <p>A root container cannot be nested inside any slot.</p>
+    <p>Nothing can be both a resource and a slot.</p>
     <pre>
-\forall r, s . \mathrm{Root}(r) \Rightarrow \neg \mathrm{hasContainer}(s, r) 
+\forall x . \mathrm{Resource}(x) \Rightarrow \neg \mathrm{Slot}(x) 
     </pre>
 
-    <p>Each data source cannot have more than one root container.</p>
+    <p>Nothing can be both a resource and a value.</p>
     <pre>
-\forall ds, r_1, r_2 . \mathrm{hasRoot}(ds, r_1) \wedge \mathrm{hasRoot}(ds, r_2) \Rightarrow r_1 = r_2 
+\forall x . \mathrm{Resource}(x) \Rightarrow \neg \mathrm{Value}(x) 
     </pre>
 
-    <p>Every non-root container must be contained in some slot.</p>
+    <p>Nothing can be both a resource and a type.</p>
     <pre>
-\forall c . \exists s . \mathrm{Container}(c) \wedge \neg \mathrm{Root}(c) \Rightarrow \mathrm{hasContainer}(s, c) 
+\forall x . \mathrm{Resource}(x) \Rightarrow \neg \mathrm{Type}(x) 
+    </pre>
+
+    <p>Nothing can be both a root and a type.</p>
+    <pre>
+\forall x . \mathrm{Root}(x) \Rightarrow \neg \mathrm{Type}(x) 
+    </pre>
+
+    <p>Nothing can be both a root and a slot.</p>
+    <pre>
+\forall x . \mathrm{Root}(x) \Rightarrow \neg \mathrm{Slot}(x) 
+    </pre>
+
+    <p>Nothing can be both a root and a value.</p>
+    <pre>
+\forall x . \mathrm{Root}(x) \Rightarrow \neg \mathrm{Value}(x) 
+    </pre>
+
+    <p>Nothing can be both a root and a data source.</p>
+    <pre>
+\forall x . \mathrm{Root}(x) \Rightarrow \neg \mathrm{DataSource}(x) 
+    </pre>
+
+    <p>Nothing can be both a root and a resource.</p>
+    <pre>
+\forall x . \mathrm{Root}(x) \Rightarrow \neg \mathrm{Resource}(x) 
     </pre>
   </section>
 
